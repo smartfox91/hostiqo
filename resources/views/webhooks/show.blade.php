@@ -5,7 +5,7 @@
 @section('page-description', $webhook->domain ?? 'Webhook Details')
 
 @section('page-actions')
-    <div class="btn-group">
+    <div class="d-flex gap-2">
         <form action="{{ route('deployments.trigger', $webhook) }}" method="POST" class="d-inline">
             @csrf
             <button type="submit" class="btn btn-success" {{ !$webhook->is_active ? 'disabled' : '' }}>
