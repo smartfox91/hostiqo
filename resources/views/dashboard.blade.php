@@ -16,7 +16,7 @@
                             <h3 class="mb-0">{{ $totalWebhooks }}</h3>
                         </div>
                         <div class="text-primary" style="font-size: 2.5rem;">
-                            <i class="bi bi-webhook"></i>
+                            <i class="bi bi-cloud-check"></i>
                         </div>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                             <p class="text-muted mb-1">Active Webhooks</p>
                             <h3 class="mb-0">{{ $activeWebhooks }}</h3>
                         </div>
-                        <div class="text-success" style="font-size: 2.5rem;">
+                        <div class="text-primary" style="font-size: 2.5rem;">
                             <i class="bi bi-check-circle"></i>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                             <p class="text-muted mb-1">Total Deployments</p>
                             <h3 class="mb-0">{{ $totalDeployments }}</h3>
                         </div>
-                        <div class="text-info" style="font-size: 2.5rem;">
+                        <div class="text-primary" style="font-size: 2.5rem;">
                             <i class="bi bi-arrow-repeat"></i>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                             <p class="text-muted mb-1">Last 24h</p>
                             <h3 class="mb-0">{{ $recentDeployments->where('created_at', '>=', now()->subDay())->count() }}</h3>
                         </div>
-                        <div class="text-warning" style="font-size: 2.5rem;">
+                        <div class="text-primary" style="font-size: 2.5rem;">
                             <i class="bi bi-clock-history"></i>
                         </div>
                     </div>
