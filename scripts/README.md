@@ -182,7 +182,18 @@ mysql -u root -p
 ```sql
 CREATE DATABASE webhook_manager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'webhook_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+
+-- Grant privileges on webhook_manager database
 GRANT ALL PRIVILEGES ON webhook_manager.* TO 'webhook_user'@'localhost';
+
+-- Grant privileges to create databases and users for deployed projects
+GRANT CREATE, DROP, ALTER ON *.* TO 'webhook_user'@'localhost';
+GRANT CREATE USER ON *.* TO 'webhook_user'@'localhost';
+GRANT RELOAD ON *.* TO 'webhook_user'@'localhost';
+
+-- Allow webhook_user to grant privileges to databases it creates
+GRANT ALL PRIVILEGES ON `%`.* TO 'webhook_user'@'localhost' WITH GRANT OPTION;
+
 FLUSH PRIVILEGES;
 EXIT;
 ```
