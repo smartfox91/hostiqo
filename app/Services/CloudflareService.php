@@ -27,7 +27,7 @@ class CloudflareService
             $response = Http::withToken($this->apiToken)
                 ->get("{$this->apiUrl}/zones", [
                     'name' => $rootDomain,
-                    'status' => 'active',
+                    // Don't filter by status - accept any zone status (active, pending, etc)
                 ]);
 
             if ($response->successful() && $response->json('success')) {

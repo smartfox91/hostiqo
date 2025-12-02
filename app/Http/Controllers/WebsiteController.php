@@ -78,11 +78,6 @@ class WebsiteController extends Controller
 
         $website = Website::create($validated);
 
-        // Auto-create DNS record if Cloudflare is enabled
-        if (config('services.cloudflare.enabled') && config('services.cloudflare.api_token')) {
-            $this->createDnsRecord($website);
-        }
-
         // Dispatch job to deploy Nginx configuration
         dispatch(new DeployNginxConfig($website));
 

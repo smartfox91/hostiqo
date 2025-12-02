@@ -135,5 +135,32 @@
                 </div>
             </form>
         </div>
+
+        <div class="col-lg-4">
+            <div class="card bg-light">
+                <div class="card-header">
+                    <i class="bi bi-lightbulb me-2"></i> Quick Tips
+                </div>
+                <div class="card-body">
+                    <h6>Configuration Changes</h6>
+                    <p class="small">Updating webhook settings does not affect existing deployments. Changes apply to the next deployment trigger.</p>
+                    
+                    <h6 class="mt-3">Repository URL</h6>
+                    <p class="small">Changing the repository URL will require updating the SSH key in your new Git provider if using SSH authentication.</p>
+
+                    <h6 class="mt-3">Branch Changes</h6>
+                    <p class="small">After changing the branch, the webhook will deploy from the new branch on the next trigger.</p>
+
+                    <h6 class="mt-3">Local Path</h6>
+                    <p class="small">Changing local path requires manual file system changes. Make sure the new path exists and has proper permissions.</p>
+
+                    <h6 class="mt-3">Deploy Scripts</h6>
+                    <p class="small">Test your deploy scripts carefully. Errors in scripts can cause deployments to fail. Check deployment logs for debugging.</p>
+
+                    <h6 class="mt-3">SSH Key</h6>
+                    <p class="small">The SSH key remains the same when editing. To regenerate, delete and recreate the webhook.</p>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection

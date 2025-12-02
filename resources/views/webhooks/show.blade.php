@@ -5,24 +5,9 @@
 @section('page-description', $webhook->domain ?? 'Webhook Details')
 
 @section('page-actions')
-    <div class="d-flex gap-2">
-        <form action="{{ route('deployments.trigger', $webhook) }}" method="POST" class="d-inline">
-            @csrf
-            <button type="submit" class="btn btn-success" {{ !$webhook->is_active ? 'disabled' : '' }}>
-                <i class="bi bi-rocket-takeoff-fill me-1"></i> Deploy Now
-            </button>
-        </form>
-        <a href="{{ route('webhooks.edit', $webhook) }}" class="btn btn-primary">
-            <i class="bi bi-pencil me-1"></i> Edit
-        </a>
-        <form action="{{ route('webhooks.destroy', $webhook) }}" method="POST" class="d-inline" onsubmit="return confirmDelete('Are you sure you want to delete this webhook and all its deployments?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger">
-                <i class="bi bi-trash me-1"></i> Delete
-            </button>
-        </form>
-    </div>
+    <a href="{{ route('webhooks.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to List
+    </a>
 @endsection
 
 @section('content')
@@ -281,33 +266,41 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <form action="{{ route('deployments.trigger', $webhook) }}" method="POST">
+                        <form action="{{ route('deployments.trigger', $webhook) }}" method="POST" class="d-grid">
                             @csrf
-                            <button type="submit" class="btn btn-success w-100" {{ !$webhook->is_active ? 'disabled' : '' }}>
-                                <i class="bi bi-arrow-repeat me-1"></i> Trigger Deployment
+                            <button type="submit" class="btn btn-success" {{ !$webhook->is_active ? 'disabled' : '' }}>
+                                <i class="bi bi-rocket-takeoff-fill me-2"></i> Manual Deployment
+                            </button>
+                        </form>
+
+                        <form action="{{ route('webhooks.toggle', $webhook) }}" method="POST" class="d-grid">
+                            @csrf
+                            <button type="submit" class="btn btn-{{ $webhook->is_active ? 'warning' : 'success' }}">
+                                <i class="bi bi-{{ $webhook->is_active ? 'pause' : 'play' }}-circle me-2"></i>
+                                {{ $webhook->is_active ? 'Disable' : 'Enable' }} Webhook
                             </button>
                         </form>
                         
                         <a href="{{ route('webhooks.edit', $webhook) }}" class="btn btn-primary">
-                            <i class="bi bi-pencil me-1"></i> Edit Configuration
+                            <i class="bi bi-pencil me-2"></i> Edit Configuration
                         </a>
 
+                        <form action="{{ route('webhooks.destroy', $webhook) }}" method="POST" class="d-grid" onsubmit="return confirmDelete('Are you sure you want to delete this webhook and all its deployments?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-2"></i> Delete Webhook
+                            </button>
+                        </form>
+
                         @if(!$webhook->sshKey)
-                            <form action="{{ route('webhooks.generate-ssh-key', $webhook) }}" method="POST">
+                            <form action="{{ route('webhooks.generate-ssh-key', $webhook) }}" method="POST" class="d-grid">
                                 @csrf
-                                <button type="submit" class="btn btn-info w-100">
-                                    <i class="bi bi-key me-1"></i> Generate SSH Key
+                                <button type="submit" class="btn btn-info">
+                                    <i class="bi bi-key me-2"></i> Generate SSH Key
                                 </button>
                             </form>
                         @endif
-
-                        <form action="{{ route('webhooks.toggle', $webhook) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-{{ $webhook->is_active ? 'warning' : 'success' }} w-100">
-                                <i class="bi bi-{{ $webhook->is_active ? 'pause' : 'play' }}-circle me-1"></i>
-                                {{ $webhook->is_active ? 'Deactivate' : 'Activate' }}
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>

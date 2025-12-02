@@ -30,7 +30,9 @@ Automatically create and manage DNS A records for your websites using Cloudflare
 4. Use the **Edit zone DNS** template or create custom token
 5. Configure permissions:
    - **Zone** → **DNS** → **Edit**
-   - **Zone Resources**: Include → Specific zone → Select your domain
+   - **Zone Resources** (Specific Domain): Include → Specific zone → Select your domain
+   - **Zone Resources** (All Domain): Include → All zones
+   - **Client IP Address Filtering** (More Secure): Operator → Is In → Add your server IP address
 6. Click **Continue to summary**
 7. Click **Create Token**
 8. **Copy the token** (you won't see it again!)
@@ -76,10 +78,19 @@ curl -X GET "https://api.cloudflare.com/client/v4/user/tokens/verify" \
 
 ## Step 3: How It Works
 
-### Automatic DNS Creation
+### On-Demand DNS Creation
 
-When you create a new website:
+When you create a new website, DNS status is set to **"None"**. You need to manually sync DNS:
 
+**From Website List:**
+- Click the DNS cloud icon in CloudFlare DNS column
+- System will create/sync DNS record
+
+**From Website Detail Page:**
+1. Go to **Websites** → Click on website
+2. Click **Sync DNS** button
+
+**Sync Process:**
 1. System detects server's public IP automatically
 2. Finds Cloudflare zone ID for the domain
 3. Creates DNS A record: `domain.com → server_ip`
@@ -87,7 +98,9 @@ When you create a new website:
 
 **Example Flow:**
 ```
-Create Website: example.com
+Create Website: example.com (DNS Status: None)
+  ↓
+Click DNS Sync Button
   ↓
 Detect Server IP: 203.0.113.5
   ↓
@@ -98,16 +111,18 @@ Create DNS A Record: example.com → 203.0.113.5
 Status: DNS Active ✓
 ```
 
-### Manual DNS Sync
+**Benefits of On-Demand:**
+- ✅ Faster website creation (no API calls)
+- ✅ No hanging during creation
+- ✅ Full control over when DNS is created
+- ✅ Can verify domain in Cloudflare first
 
-You can manually sync DNS records from the website detail page:
+### Resync DNS Records
 
-1. Go to **Websites** → Click on website
-2. Click **Sync DNS** button
-3. System will:
-   - Update server IP if changed
-   - Create record if doesn't exist
-   - Update existing record if exists
+You can resync existing DNS records anytime:
+- Update server IP if changed
+- Fix failed DNS records
+- Recreate deleted records
 
 ---
 
@@ -214,8 +229,8 @@ php artisan tinker
 
 ```bash
 # Check detected IP
-curl https://api.ipify.org
-curl https://icanhazip.com
+curl https://api.myapp.com
+curl https://myapp.com
 ```
 
 ---

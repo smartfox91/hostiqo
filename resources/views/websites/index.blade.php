@@ -127,10 +127,23 @@
                                     </td>
                                     @if(config('services.cloudflare.enabled'))
                                         <td>
-                                            <span class="badge bg-{{ $website->dns_status_badge }}" title="DNS Status: {{ ucfirst($website->dns_status) }}{{ $website->server_ip ? ' → ' . $website->server_ip : '' }}">
-                                                <i class="bi bi-cloud{{ $website->dns_status === 'active' ? '-check' : '' }}"></i>
-                                                {{ ucfirst($website->dns_status) }}
-                                            </span>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <form action="{{ route('websites.dns-sync', $website) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" 
+                                                            class="btn btn-link p-0 text-{{ $website->dns_status === 'active' ? 'success' : 'secondary' }}"
+                                                            style="font-size: 1.2rem; text-decoration: none;"
+                                                            title="{{ $website->dns_status === 'active' ? 'DNS Active - Click to resync' : 'Click to create DNS record' }}"
+                                                            {{ $website->dns_status === 'pending' ? 'disabled' : '' }}>
+                                                        <i class="bi bi-{{ $website->dns_status === 'active' ? 'cloud-check' : 'cloud-slash' }}"></i>
+                                                    </button>
+                                                </form>
+                                                @if($website->dns_status !== 'none')
+                                                    <span class="badge bg-{{ $website->dns_status_badge }}" title="DNS Status">
+                                                        {{ ucfirst($website->dns_status) }}
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </td>
                                     @endif
                                     <td>

@@ -5,21 +5,9 @@
 @section('page-description', 'Database details and information')
 
 @section('page-actions')
-    <div class="d-flex gap-2">
-        <a href="{{ route('databases.change-password', $database) }}" class="btn btn-warning">
-            <i class="bi bi-lock-fill me-1"></i> Change Password
-        </a>
-        <a href="{{ route('databases.edit', $database) }}" class="btn btn-secondary">
-            <i class="bi bi-pencil me-1"></i> Edit
-        </a>
-        <form action="{{ route('databases.destroy', $database) }}" method="POST" onsubmit="return confirmDelete('Are you sure you want to delete this database? This action cannot be undone!')">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger">
-                <i class="bi bi-trash me-1"></i> Delete
-            </button>
-        </form>
-    </div>
+    <a href="{{ route('databases.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to List
+    </a>
 @endsection
 
 @section('content')
@@ -152,12 +140,16 @@
                         <a href="{{ route('databases.change-password', $database) }}" class="btn btn-warning">
                             <i class="bi bi-lock-fill me-2"></i>Change Password
                         </a>
-                        <a href="{{ route('databases.edit', $database) }}" class="btn btn-secondary">
+                        <a href="{{ route('databases.edit', $database) }}" class="btn btn-primary">
                             <i class="bi bi-pencil me-2"></i>Edit Description
                         </a>
-                        <a href="{{ route('databases.index') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-left me-2"></i>Back to List
-                        </a>
+                        <form action="{{ route('databases.destroy', $database) }}" method="POST" class="d-grid" onsubmit="return confirmDelete('Are you sure you want to delete this database? This action cannot be undone!')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-2"></i>Delete Database
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

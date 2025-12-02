@@ -4,6 +4,12 @@
 @section('page-title', 'Add New ' . ucfirst($type) . ' Website')
 @section('page-description', 'Configure a new ' . $type . ' virtual host')
 
+@section('page-actions')
+    <a href="{{ route('websites.index', ['type' => $type]) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to Websites
+    </a>
+@endsection
+
 @section('content')
     @if(in_array(config('app.env'), ['local', 'dev', 'development']))
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -14,15 +20,16 @@
     @endif
 
     <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-body">
-                    <form action="{{ route('websites.store') }}" method="POST" id="websiteForm">
-                        @csrf
-
-                        <input type="hidden" name="project_type" value="{{ $type }}">
-
-                        <!-- Name -->
+        <div class="col-lg-8">
+            <form action="{{ route('websites.store') }}" method="POST" id="websiteForm">
+                @csrf
+                <input type="hidden" name="project_type" value="{{ $type }}">
+                
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-info-circle me-2"></i> Basic Information
+                    </div>
+                    <div class="card-body">
                         <div class="mb-3">
                             <label for="name" class="form-label">
                                 Website Name <span class="text-danger">*</span>
@@ -36,9 +43,7 @@
                                 required
                                 placeholder="My Awesome Project"
                             >
-                            <small class="form-text text-muted">
-                                A friendly name for your website.
-                            </small>
+                            <div class="form-text">A friendly name for your website</div>
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -58,15 +63,19 @@
                                 required
                                 placeholder="example.com"
                             >
-                            <small class="form-text text-muted">
-                                The domain name for this website (e.g., example.com or subdomain.example.com).
-                            </small>
+                            <div class="form-text">The domain name for this website (e.g., example.com or subdomain.example.com)</div>
                             @error('domain')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Root Path -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-folder me-2"></i> Path Configuration
+                    </div>
+                    <div class="card-body">
                         <div class="mb-3">
                             <label for="root_path" class="form-label">
                                 Website Root Path
@@ -79,9 +88,7 @@
                                 value="{{ old('root_path') }}" 
                                 placeholder="/var/www/example_com"
                             >
-                            <small class="form-text text-muted">
-                                Leave empty to auto-generate from domain name (e.g., /var/www/example_com).
-                            </small>
+                            <div class="form-text">Leave empty to auto-generate from domain name (e.g., /var/www/example_com)</div>
                             @error('root_path')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -101,10 +108,10 @@
                                     value="{{ old('working_directory', '/') }}" 
                                     placeholder="/ or /public or /public_html"
                                 >
-                                <small class="form-text text-muted">
+                                <div class="form-text">
                                     <strong>Relative path</strong> from root path. Examples: <code>/</code> (root), <code>/public</code>, <code>/public_html</code>
                                     <br>Final path: <code>{root_path}{working_directory}</code>
-                                </small>
+                                </div>
                                 @error('working_directory')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -122,16 +129,20 @@
                                     value="{{ old('working_directory') }}" 
                                     placeholder="start"
                                 >
-                                <small class="form-text text-muted">
-                                    Startup mode in package.json
-                                </small>
+                                <div class="form-text">Startup mode in package.json</div>
                                 @error('working_directory')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         @endif
+                    </div>
+                </div>
 
-                        <!-- Version Selection -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-code-slash me-2"></i> @if($type === 'php') PHP @else Node.js @endif Configuration
+                    </div>
+                    <div class="card-body">
                         @if($type === 'php')
                             <div class="mb-3">
                                 <label for="php_version" class="form-label">
@@ -149,9 +160,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <small class="form-text text-muted">
-                                    Select the PHP version for this website.
-                                </small>
+                                <div class="form-text">Select the PHP version for this website</div>
                                 @error('php_version')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -173,9 +182,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <small class="form-text text-muted">
-                                    Select the Node.js version for this website.
-                                </small>
+                                <div class="form-text">Select the Node.js version for this website</div>
                                 @error('node_version')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -196,16 +203,20 @@
                                     min="1"
                                     max="65535"
                                 >
-                                <small class="form-text text-muted">
-                                    Port of the project
-                                </small>
+                                <div class="form-text">Port where your Node.js application will run (Nginx will proxy to this port)</div>
                                 @error('port')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         @endif
+                    </div>
+                </div>
 
-                        <!-- SSL Enabled -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-shield-check me-2"></i> Security & Status
+                    </div>
+                    <div class="card-body">
                         <div class="mb-3">
                             <div class="form-check form-switch">
                                 <input 
@@ -220,9 +231,7 @@
                                     Enable Let's Encrypt SSL
                                 </label>
                             </div>
-                            <small class="form-text text-muted">
-                                Enable SSL certificate for this website. You can enable this later.
-                            </small>
+                            <div class="form-text">Automatically request Let's Encrypt SSL certificate for HTTPS. You can enable this later from the website detail page.</div>
                         </div>
 
                         <!-- Active Status -->
@@ -240,21 +249,50 @@
                                     Active
                                 </label>
                             </div>
-                            <small class="form-text text-muted">
-                                Set the website as active.
-                            </small>
+                            <div class="form-text">Mark website as active/inactive</div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Form Actions -->
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <a href="{{ route('websites.index', ['type' => $type]) }}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left me-1"></i> Back
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle me-1"></i> Create Website
-                            </button>
-                        </div>
-                    </form>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i> Create Website
+                    </button>
+                    <a href="{{ route('websites.index', ['type' => $type]) }}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card bg-light">
+                <div class="card-header">
+                    <i class="bi bi-lightbulb me-2"></i> Quick Tips
+                </div>
+                <div class="card-body">
+                    @if($type === 'php')
+                        <h6>PHP Websites</h6>
+                        <p class="small">For Laravel, set working directory to <code>/public</code>. For WordPress, use <code>/</code> (root).</p>
+                        
+                        <h6 class="mt-3">PHP-FPM Pool</h6>
+                        <p class="small">Each website gets its own PHP-FPM pool for better resource isolation and performance.</p>
+                    @else
+                        <h6>Node.js Applications</h6>
+                        <p class="small">Nginx will act as a reverse proxy to your Node.js application running on the specified port.</p>
+                        
+                        <h6 class="mt-3">PM2 Process Manager</h6>
+                        <p class="small">Your Node.js app will be managed by PM2 for auto-restart, logging, and monitoring.</p>
+                    @endif
+
+                    <h6 class="mt-3">Auto-Generated Paths</h6>
+                    <p class="small">If you leave the root path empty, it will be auto-generated as <code>/var/www/domain_name</code></p>
+
+                    <h6 class="mt-3">SSL Certificate</h6>
+                    <p class="small">Enable SSL during creation or later. Let's Encrypt certificates are automatically renewed every 90 days.</p>
+
+                    <h6 class="mt-3">Cloudflare DNS</h6>
+                    <p class="small">After creating the website, use the DNS sync button in the website list to create DNS A records automatically.</p>
                 </div>
             </div>
         </div>

@@ -4,6 +4,12 @@
 @section('page-title', 'Edit ' . ucfirst($website->project_type) . ' Website')
 @section('page-description', 'Update website configuration')
 
+@section('page-actions')
+    <a href="{{ route('websites.index', ['type' => $website->project_type]) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to Websites
+    </a>
+@endsection
+
 @section('content')
     @if(in_array(config('app.env'), ['local', 'dev', 'development']))
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -14,16 +20,17 @@
     @endif
 
     <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-body">
-                    <form action="{{ route('websites.update', $website) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-
-                        <input type="hidden" name="project_type" value="{{ $website->project_type }}">
-
-                        <!-- Name -->
+        <div class="col-lg-8">
+            <form action="{{ route('websites.update', $website) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="project_type" value="{{ $website->project_type }}">
+                
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-info-circle me-2"></i> Basic Information
+                    </div>
+                    <div class="card-body">
                         <div class="mb-3">
                             <label for="name" class="form-label">
                                 Website Name <span class="text-danger">*</span>
@@ -42,7 +49,6 @@
                             @enderror
                         </div>
 
-                        <!-- Domain -->
                         <div class="mb-3">
                             <label for="domain" class="form-label">
                                 Domain Name <span class="text-danger">*</span>
@@ -60,8 +66,14 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Root Path -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-folder me-2"></i> Path Configuration
+                    </div>
+                    <div class="card-body">
                         <div class="mb-3">
                             <label for="root_path" class="form-label">
                                 Website Root Path <span class="text-danger">*</span>
@@ -80,7 +92,6 @@
                             @enderror
                         </div>
 
-                        <!-- Working Directory / Run Opt -->
                         @if($website->project_type === 'php')
                             <div class="mb-3">
                                 <label for="working_directory" class="form-label">
@@ -94,10 +105,10 @@
                                     value="{{ old('working_directory', $website->working_directory ?? '/') }}" 
                                     placeholder="/ or /public or /public_html"
                                 >
-                                <small class="form-text text-muted">
+                                <div class="form-text">
                                     <strong>Relative path</strong> from root path. Examples: <code>/</code> (root), <code>/public</code>, <code>/public_html</code>
                                     <br>Final path: <code>{{ $website->root_path }}{working_directory}</code>
-                                </small>
+                                </div>
                                 @error('working_directory')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -115,16 +126,20 @@
                                     value="{{ old('working_directory', $website->working_directory) }}" 
                                     placeholder="start"
                                 >
-                                <small class="form-text text-muted">
-                                    Startup mode in package.json
-                                </small>
+                                <div class="form-text">Startup mode in package.json</div>
                                 @error('working_directory')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         @endif
+                    </div>
+                </div>
 
-                        <!-- Version Selection -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-code-slash me-2"></i> @if($website->project_type === 'php') PHP @else Node.js @endif Configuration
+                    </div>
+                    <div class="card-body">
                         @if($website->project_type === 'php')
                             <div class="mb-3">
                                 <label for="php_version" class="form-label">
@@ -183,16 +198,20 @@
                                     min="1"
                                     max="65535"
                                 >
-                                <small class="form-text text-muted">
-                                    Port of the project
-                                </small>
+                                <div class="form-text">Port where your Node.js application will run (Nginx will proxy to this port)</div>
                                 @error('port')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         @endif
+                    </div>
+                </div>
 
-                        <!-- SSL Enabled -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-shield-check me-2"></i> Security & Status
+                    </div>
+                    <div class="card-body">
                         <div class="mb-3">
                             <div class="form-check form-switch">
                                 <input 
@@ -207,9 +226,9 @@
                                     Enable Let's Encrypt SSL
                                 </label>
                             </div>
+                            <div class="form-text">Automatically request Let's Encrypt SSL certificate for HTTPS</div>
                         </div>
 
-                        <!-- Active Status -->
                         <div class="mb-3">
                             <div class="form-check form-switch">
                                 <input 
@@ -224,18 +243,42 @@
                                     Active
                                 </label>
                             </div>
+                            <div class="form-text">Mark website as active/inactive</div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Form Actions -->
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <a href="{{ route('websites.index', ['type' => $website->project_type]) }}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left me-1"></i> Back
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle me-1"></i> Update Website
-                            </button>
-                        </div>
-                    </form>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i> Update Website
+                    </button>
+                    <a href="{{ route('websites.index', ['type' => $website->project_type]) }}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card bg-light">
+                <div class="card-header">
+                    <i class="bi bi-lightbulb me-2"></i> Quick Tips
+                </div>
+                <div class="card-body">
+                    <h6>Configuration Changes</h6>
+                    <p class="small">Updating website settings will trigger automatic Nginx configuration redeployment.</p>
+                    
+                    <h6 class="mt-3">Path Changes</h6>
+                    <p class="small">Changing root path or working directory requires redeploying configurations. Make sure the paths exist on the server.</p>
+
+                    <h6 class="mt-3">Version Changes</h6>
+                    <p class="small">@if($website->project_type === 'php')Changing PHP version will update the PHP-FPM pool configuration and reload the service.@else Changing Node.js version requires restarting your application via PM2.@endif</p>
+
+                    <h6 class="mt-3">SSL Certificate</h6>
+                    <p class="small">Toggle SSL on/off as needed. Use the "Enable SSL" button on the website detail page to request certificates.</p>
+
+                    <h6 class="mt-3">Redeploy</h6>
+                    <p class="small">If configurations aren't applying, use the "Redeploy Config" button on the website detail page.</p>
                 </div>
             </div>
         </div>

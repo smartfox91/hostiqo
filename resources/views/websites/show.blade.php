@@ -5,36 +5,20 @@
 @section('page-description', ucfirst($website->project_type) . ' Website Details')
 
 @section('page-actions')
-    <div class="btn-group" role="group">
-        <a href="{{ route('websites.edit', $website) }}" class="btn btn-outline-primary">
-            <i class="bi bi-pencil me-1"></i> Edit
-        </a>
-        <button type="button" 
-                class="btn btn-outline-primary"
-                onclick="confirmAction('Redeploy Configuration', 'Regenerate and redeploy Nginx and PHP-FPM configurations for {{ $website->domain }}?', 'Yes, redeploy!', 'question').then(confirmed => { if(confirmed) document.getElementById('redeploy-form').submit(); })">
-            <i class="bi bi-rocket-takeoff-fill me-1"></i> Redeploy
-        </button>
-        <button type="button" 
-                class="btn btn-outline-danger"
-                data-bs-toggle="modal" 
-                data-bs-target="#deleteModal">
-            <i class="bi bi-trash me-1"></i> Delete
-        </button>
-    </div>
-    
-    <!-- Hidden redeploy form -->
-    <form id="redeploy-form" action="{{ route('websites.redeploy', $website) }}" method="POST" class="d-none">
-        @csrf
-    </form>
+    <a href="{{ route('websites.index', ['type' => $website->project_type]) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to List
+    </a>
 @endsection
 
 @section('content')
     <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
+        <div class="col-lg-8">
+            <!-- Basic Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Basic Information</h5>
+                </div>
                 <div class="card-body">
-                    <!-- Basic Information -->
-                    <h5 class="card-title mb-4">Basic Information</h5>
                     
                     <div class="row mb-3">
                         <div class="col-md-4">
@@ -194,12 +178,15 @@
                             </div>
                         </div>
                     @endif
+                </div>
+            </div>
 
-                    <hr class="my-4">
-
-                    <!-- Timestamps -->
-                    <h5 class="card-title mb-4">Timestamps</h5>
-
+            <!-- Timestamps -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-clock me-2"></i>Timestamps</h5>
+                </div>
+                <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <strong>Created At:</strong>
@@ -217,40 +204,13 @@
                             {{ $website->updated_at->format('d M Y, h:i A') }}
                         </div>
                     </div>
-
-                    <!-- Actions -->
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{{ route('websites.index', ['type' => $website->project_type]) }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-1"></i> Back to List
-                        </a>
-                        <div class="d-flex gap-2">
-                            <form action="{{ route('websites.toggle-ssl', $website) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('POST')
-                                <button type="submit" class="btn btn-{{ $website->ssl_enabled ? 'success' : 'primary' }}">
-                                    <i class="bi bi-shield-check me-1"></i> 
-                                    {{ $website->ssl_enabled ? 'SSL Enabled' : 'Enable SSL' }}
-                                </button>
-                            </form>
-                            
-                            @if(config('services.cloudflare.enabled'))
-                                <form action="{{ route('websites.dns-sync', $website) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-{{ $website->dns_status === 'active' ? 'info' : 'warning' }}" title="Sync DNS record with Cloudflare">
-                                        <i class="bi bi-hdd-network me-1"></i> 
-                                        {{ $website->dns_status === 'active' ? 'DNS Synced' : 'Sync DNS' }}
-                                    </button>
-                                </form>
-                            @endif
-                        </div>
-                    </div>
                 </div>
             </div>
 
             @if($website->project_type === 'node' && config('app.env') !== 'local')
                 <!-- PM2 Process Control -->
-                <div class="card mt-4">
-                    <div class="card-header bg-success text-white">
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5 class="mb-0">
                             <i class="bi bi-hdd-rack me-2"></i>PM2 Process Control
                         </h5>
@@ -302,6 +262,91 @@
                     </div>
                 </div>
             @endif
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <form action="{{ route('websites.toggle-ssl', $website) }}" method="POST" class="d-grid">
+                            @csrf
+                            @method('POST')
+                            <button type="submit" class="btn btn-{{ $website->ssl_enabled ? 'outline-success' : 'outline-primary' }}">
+                                <i class="bi bi-shield-check me-2"></i> 
+                                {{ $website->ssl_enabled ? 'SSL Enabled' : 'Enable SSL' }}
+                            </button>
+                        </form>
+                        
+                        @if(config('services.cloudflare.enabled'))
+                            <form action="{{ route('websites.dns-sync', $website) }}" method="POST" class="d-grid">
+                                @csrf
+                                <button type="submit" class="btn btn-{{ $website->dns_status === 'active' ? 'outline-success' : 'outline-secondary' }}" title="Sync DNS record with Cloudflare">
+                                    <i class="bi bi-hdd-network me-2"></i> 
+                                    {{ $website->dns_status === 'active' ? 'DNS Synced' : 'Sync DNS' }}
+                                </button>
+                            </form>
+                        @endif
+
+                        <form id="redeploy-form" action="{{ route('websites.redeploy', $website) }}" method="POST" class="d-grid">
+                            @csrf
+                            <button type="button" 
+                                    class="btn btn-warning"
+                                    onclick="confirmAction('Redeploy Configuration', 'Regenerate and redeploy Nginx and PHP-FPM configurations for {{ $website->domain }}?', 'Yes, redeploy!', 'question').then(confirmed => { if(confirmed) this.closest('form').submit(); })">
+                                <i class="bi bi-rocket-takeoff-fill me-2"></i> Redeploy Config
+                            </button>
+                        </form>
+
+                        <a href="{{ route('websites.edit', $website) }}" class="btn btn-primary">
+                            <i class="bi bi-pencil me-2"></i> Edit Website
+                        </a>
+
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="bi bi-trash me-2"></i> Delete Website
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Tips -->
+            <div class="card bg-light">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Quick Tips</h5>
+                </div>
+                <div class="card-body">
+                    @if($website->project_type === 'php')
+                        <h6>PHP Website</h6>
+                        <p class="small">This website uses PHP {{ $website->php_version ?? 'System Default' }} with its own PHP-FPM pool for isolated resource management.</p>
+                    @else
+                        <h6>Node.js Application</h6>
+                        <p class="small">This Node.js app runs on port {{ $website->port }} and is managed by PM2 for automatic restarts and monitoring.</p>
+                    @endif
+
+                    <h6 class="mt-3">SSL Certificate</h6>
+                    <p class="small">@if($website->ssl_enabled)SSL is enabled. Certificates auto-renew every 90 days via Let's Encrypt.@elseTo enable HTTPS, click the "Enable SSL" button. Let's Encrypt certificate will be requested automatically.@endif</p>
+
+                    @if(config('services.cloudflare.enabled'))
+                        <h6 class="mt-3">Cloudflare DNS</h6>
+                        <p class="small">@if($website->dns_status === 'active')DNS A record is synced pointing to {{ $website->server_ip }}.@elseClick "Sync DNS" to create/update the DNS A record in Cloudflare.@endif</p>
+                    @endif
+
+                    <h6 class="mt-3">Redeploy</h6>
+                    <p class="small">Use "Redeploy Config" if you've manually changed files or need to regenerate Nginx/PHP-FPM configurations.</p>
+
+                    @if($website->project_type === 'node')
+                        <h6 class="mt-3">PM2 Management</h6>
+                        <p class="small">Control your Node.js application with Start, Restart, or Stop buttons. Check status before making changes.</p>
+                    @endif
+
+                    <h6 class="mt-3">Configuration Files</h6>
+                    <p class="small">Nginx: <code>/etc/nginx/sites-available/{{ $website->domain }}</code><br>
+                    @if($website->project_type === 'php')PHP-FPM: <code>/etc/php/{{ $website->php_version }}/fpm/pool.d/{{ str_replace('.', '-', $website->domain) }}.conf</code>@endif
+                    @if($website->project_type === 'node')PM2: <code>/etc/pm2/ecosystem.{{ str_replace('.', '-', $website->domain) }}.config.js</code>@endif</p>
+                </div>
+            </div>
         </div>
     </div>
 
