@@ -262,10 +262,17 @@ canvas {
     .d-flex.justify-content-between {
         flex-direction: column;
         gap: 1rem;
+        align-items: flex-start !important;
     }
     
-    .d-flex.justify-content-between > div:last-child {
+    .d-flex.justify-content-between > div {
         width: 100%;
+        text-align: left;
+    }
+    
+    .d-flex.justify-content-between > div:first-child h2,
+    .d-flex.justify-content-between > div:first-child p {
+        text-align: left !important;
     }
     
     .d-flex.justify-content-between .btn-group,
@@ -299,10 +306,15 @@ canvas {
     
     h2 {
         font-size: 1.5rem;
+        text-align: left !important;
     }
     
     h3 {
         font-size: 1.75rem;
+    }
+    
+    p.text-muted {
+        text-align: left !important;
     }
     
     /* Stat cards - keep horizontal layout on mobile */
