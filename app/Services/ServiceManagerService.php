@@ -14,7 +14,7 @@ class ServiceManagerService
             'name' => 'Nginx',
             'service' => 'nginx',
             'supports_reload' => true,
-            'icon' => 'server',
+            'icon' => 'hexagon'
         ],
         
         // Databases
@@ -22,7 +22,7 @@ class ServiceManagerService
             'name' => 'Redis',
             'service' => 'redis-server',
             'supports_reload' => false,
-            'icon' => 'database',
+            'icon' => 'leaf',
         ],
         'mysql' => [
             'name' => 'MySQL',
@@ -74,7 +74,7 @@ class ServiceManagerService
             'name' => 'Supervisor',
             'service' => 'supervisor',
             'supports_reload' => true,
-            'icon' => 'grid',
+            'icon' => 'display',
         ],
         
         // Security
@@ -82,7 +82,7 @@ class ServiceManagerService
             'name' => 'fail2ban',
             'service' => 'fail2ban',
             'supports_reload' => true,
-            'icon' => 'shield-check',
+            'icon' => 'shield-shaded',
         ],
         
         // Firewall
@@ -90,7 +90,7 @@ class ServiceManagerService
             'name' => 'UFW Firewall',
             'service' => 'ufw',
             'supports_reload' => false,
-            'icon' => 'shield-fill-exclamation',
+            'icon' => 'shield-check',
         ],
     ];
 

@@ -1,23 +1,22 @@
 @extends('layouts.app')
 
 @section('title', 'Service Logs')
+@section('page-title', 'Service Logs')
+@section('page-description')
+    Viewing logs for: <strong>{{ $service }}</strong>
+@endsection
+
+@section('page-actions')
+    <a href="{{ route('services.index') }}" class="btn btn-outline-secondary me-2">
+        <i class="bi bi-arrow-left me-2"></i> Back
+    </a>
+    <button class="btn btn-outline-primary" onclick="location.reload()">
+        <i class="bi bi-arrow-clockwise me-2"></i> Refresh
+    </button>
+@endsection
 
 @section('content')
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1"><i class="bi bi-file-text me-2"></i> Service Logs</h2>
-            <p class="text-muted mb-0">Viewing logs for: <strong>{{ $service }}</strong></p>
-        </div>
-        <div>
-            <a href="{{ route('services.index') }}" class="btn btn-outline-secondary me-2">
-                <i class="bi bi-arrow-left me-2"></i> Back
-            </a>
-            <button class="btn btn-outline-primary" onclick="location.reload()">
-                <i class="bi bi-arrow-clockwise me-2"></i> Refresh
-            </button>
-        </div>
-    </div>
 
     <div class="card shadow-sm">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
