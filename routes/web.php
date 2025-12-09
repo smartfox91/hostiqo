@@ -12,9 +12,11 @@ use App\Http\Controllers\FirewallController;
 use App\Http\Controllers\LogViewerController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\ServerHealthController;
+use App\Http\Controllers\ServiceManagerController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WebhookHandlerController;
 use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\WordPressDeploymentController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication Routes
@@ -83,6 +85,19 @@ Route::middleware('auth')->group(function () {
     Route::post('websites/{website}/pm2-restart', [WebsiteController::class, 'pm2Restart'])
         ->name('websites.pm2-restart');
     
+    // 1-Click App Deployment (Dynamic - supports WordPress, Drupal, etc)
+    // Legacy WordPress routes (kept for backwards compatibility)
+    Route::get('websites/{website}/wordpress', [WordPressDeploymentController::class, 'show'])
+        ->name('websites.wordpress.show');
+    Route::post('websites/{website}/wordpress/install', [WordPressDeploymentController::class, 'install'])
+        ->name('websites.wordpress.install');
+    Route::get('websites/{website}/wordpress/status', [WordPressDeploymentController::class, 'checkStatus'])
+        ->name('websites.wordpress.status');
+    
+    // Future: Dynamic app deployment routes
+    // Route::post('websites/{website}/apps/{app}/install', [AppDeploymentController::class, 'install'])
+    //     ->name('websites.apps.install')->where('app', 'wordpress|drupal|laravel|symfony');
+    
     // Cloudflare DNS Management
     Route::post('websites/{website}/dns-sync', [CloudflareController::class, 'sync'])
         ->name('websites.dns-sync');
@@ -132,6 +147,15 @@ Route::middleware('auth')->group(function () {
     Route::post('files/chmod', [FileManagerController::class, 'chmod'])->name('files.chmod');
     Route::post('files/upload', [FileManagerController::class, 'upload'])->name('files.upload');
     Route::get('files/download', [FileManagerController::class, 'download'])->name('files.download');
+
+    // Service Manager
+    Route::get('services', [ServiceManagerController::class, 'index'])->name('services.index');
+    Route::get('services/status', [ServiceManagerController::class, 'status'])->name('services.status');
+    Route::post('services/start', [ServiceManagerController::class, 'start'])->name('services.start');
+    Route::post('services/stop', [ServiceManagerController::class, 'stop'])->name('services.stop');
+    Route::post('services/restart', [ServiceManagerController::class, 'restart'])->name('services.restart');
+    Route::post('services/reload', [ServiceManagerController::class, 'reload'])->name('services.reload');
+    Route::get('services/logs', [ServiceManagerController::class, 'logs'])->name('services.logs');
 });
 
 // Webhook Handler (API endpoint for Git providers - No Auth Required)

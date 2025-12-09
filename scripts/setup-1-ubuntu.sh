@@ -158,6 +158,21 @@ chown -R www-data:www-data /var/www
 chmod -R 755 /var/www
 print_success "Web directories created"
 
+# Install WP-CLI (WordPress command-line tool)
+print_info "Installing WP-CLI..."
+if ! command -v wp &> /dev/null; then
+    curl -sS https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /tmp/wp-cli.phar 2>/dev/null
+    if [ -f /tmp/wp-cli.phar ]; then
+        chmod +x /tmp/wp-cli.phar
+        mv /tmp/wp-cli.phar /usr/local/bin/wp
+        print_success "WP-CLI installed (for 1-click WordPress deployment)"
+    else
+        print_warning "WP-CLI download failed - WordPress deployment feature won't work"
+    fi
+else
+    print_success "WP-CLI already installed"
+fi
+
 # Create PM2 config directory
 print_info "Creating PM2 config directory..."
 mkdir -p /etc/pm2
@@ -251,6 +266,7 @@ echo "  • Redis (cache & queue backend)"
 echo "  • MySQL (database server - SECURED)"
 echo "  • Supervisor (process management)"
 echo "  • Certbot (SSL certificates)"
+echo "  • WP-CLI (WordPress management)"
 echo "  • fail2ban (brute-force protection)"
 echo "  • UFW firewall (configured)"
 echo ""

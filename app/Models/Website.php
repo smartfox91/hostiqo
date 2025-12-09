@@ -12,6 +12,7 @@ class Website extends Model
         'root_path',
         'working_directory',
         'project_type',
+        'framework',
         'php_version',
         'node_version',
         'php_settings',
@@ -33,6 +34,8 @@ class Website extends Model
         'dns_status',
         'dns_error',
         'dns_last_synced_at',
+        'status',
+        'notes',
     ];
 
     protected $casts = [
@@ -119,10 +122,21 @@ class Website extends Model
     }
 
     /**
-     * Scope to filter by project type
+     * Scope to filter by project type or framework
      */
     public function scopeOfType($query, string $type)
     {
+        // Special case: 'deployment' shows all 1-click deployed apps
+        if ($type === 'deployment') {
+            return $query->whereNotNull('framework');
+        }
+        
+        // Legacy support: 'wordpress' filters by framework
+        if ($type === 'wordpress') {
+            return $query->where('framework', 'wordpress')
+                         ->where('project_type', 'php');
+        }
+        
         return $query->where('project_type', $type);
     }
 

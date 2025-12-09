@@ -5,9 +5,11 @@
 @section('page-description', 'Manage PHP and Node.js website configurations')
 
 @section('page-actions')
-    <a href="{{ route('websites.create', ['type' => $type]) }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle me-1"></i> Add {{ ucfirst($type) }} Website
-    </a>
+    @if($type !== 'deployment')
+        <a href="{{ route('websites.create', ['type' => $type]) }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Add {{ ucfirst($type) }} Website
+        </a>
+    @endif
 @endsection
 
 @section('content')
@@ -158,6 +160,56 @@
         .tabs-container {
             margin-bottom: 2rem;
         }
+        
+        /* App Cards Styles */
+        .app-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            border: 2px solid transparent;
+        }
+        .app-card:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border-color: #5865f2;
+            transform: translateY(-4px);
+        }
+        .app-card-disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .app-card-disabled:hover {
+            transform: none;
+            border-color: transparent;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .app-card-icon {
+            font-size: 3.5rem;
+            color: #5865f2;
+            margin-bottom: 1rem;
+        }
+        .app-card-disabled .app-card-icon {
+            color: #9ca3af;
+        }
+        .app-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+        .app-card-desc {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+        .app-card-badge {
+            margin-top: 1rem;
+        }
+        
         .website-icon {
             width: 40px;
             height: 40px;
@@ -182,9 +234,70 @@
            class="tab-btn text-decoration-none {{ $type === 'node' ? 'active' : '' }}">
             <i class="bi bi-hexagon me-1"></i> Node Projects
         </a>
+        <a href="{{ route('websites.index', ['type' => 'deployment']) }}" 
+           class="tab-btn text-decoration-none {{ $type === 'deployment' ? 'active' : '' }}">
+            <i class="bi bi-rocket-takeoff me-1"></i> 1-Click Deployment
+        </a>
     </div>
 
-    @if($websites->isEmpty())
+    @if($type === 'deployment')
+        <!-- 1-Click Deployment Apps Selection -->
+        <div class="row g-4 mb-4">
+            <!-- WordPress Card -->
+            <div class="col-md-4">
+                <div class="app-card" data-bs-toggle="modal" data-bs-target="#wordpressModal">
+                    <div class="app-card-icon">
+                        <i class="bi bi-wordpress"></i>
+                    </div>
+                    <h5 class="app-card-title">WordPress</h5>
+                    <p class="app-card-desc">Popular CMS with FastCGI cache & security</p>
+                    <div class="app-card-badge">
+                        <span class="badge bg-success">Available</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drupal Card (Coming Soon) -->
+            <div class="col-md-4">
+                <div class="app-card app-card-disabled">
+                    <div class="app-card-icon">
+                        <i class="bi bi-droplet"></i>
+                    </div>
+                    <h5 class="app-card-title">Drupal</h5>
+                    <p class="app-card-desc">Enterprise-grade CMS platform</p>
+                    <div class="app-card-badge">
+                        <span class="badge bg-secondary">Coming Soon</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- More Apps Card -->
+            <div class="col-md-4">
+                <div class="app-card app-card-disabled">
+                    <div class="app-card-icon">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                    </div>
+                    <h5 class="app-card-title">Other Apps</h5>
+                    <p class="app-card-desc">Joomla & more</p>
+                    <div class="app-card-badge">
+                        <span class="badge bg-secondary">Coming Soon</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deployed Sites List -->
+        <h5 class="mb-3"><i class="bi bi-list-ul me-2"></i>Deployed Sites</h5>
+        @if($websites->isEmpty())
+            <div class="website-card">
+                <div class="text-center py-5" style="padding: 3rem 1.5rem;">
+                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-4">No sites deployed yet</h4>
+                    <p class="text-muted">Click on an app card above to deploy your first site!</p>
+                </div>
+            </div>
+        @endif
+    @elseif($websites->isEmpty())
         <div class="website-card">
             <div class="text-center py-5" style="padding: 3rem 1.5rem;">
                 <i class="bi bi-globe text-muted" style="font-size: 4rem;"></i>
@@ -195,7 +308,9 @@
                 </a>
             </div>
         </div>
-    @else
+    @endif
+    
+    @if(!$websites->isEmpty())
         @foreach($websites as $website)
             <div class="website-card">
                 <!-- Card Header -->
@@ -369,4 +484,24 @@
             }
         }
     </script>
+
+    <!-- WordPress Deployment Modal -->
+    <div class="modal fade" id="wordpressModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content" style="border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #5865f2 0%, #7289da 100%); color: white; border: none;">
+                    <div>
+                        <h4 class="modal-title mb-1">
+                            <i class="bi bi-wordpress me-2"></i> Deploy WordPress Website
+                        </h4>
+                        <p class="mb-0 small" style="opacity: 0.9;">Step-by-step guided installation with auto-tuned performance</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    @include('websites.partials.wordpress-quick-installer')
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection

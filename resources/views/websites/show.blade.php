@@ -11,9 +11,29 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Basic Information -->
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4" id="websiteTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
+                <i class="bi bi-info-circle me-2"></i>Overview
+            </button>
+        </li>
+        @if($website->project_type === 'php')
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="wordpress-tab" data-bs-toggle="tab" data-bs-target="#wordpress" type="button" role="tab" aria-controls="wordpress" aria-selected="false">
+                <i class="bi bi-wordpress me-2"></i>1-Click Deployment
+            </button>
+        </li>
+        @endif
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="websiteTabsContent">
+        <!-- Overview Tab -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Basic Information -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title mb-3"><i class="bi bi-globe"></i> Basic Information</h5>
@@ -451,6 +471,7 @@
                     @if($website->project_type === 'php')
                         <h6>PHP Website</h6>
                         <p class="small">This website uses PHP {{ $website->php_version ?? 'System Default' }} with its own PHP-FPM pool for isolated resource management.</p>
+                        <p class="small mt-2"><strong>Tip:</strong> Check the "1-Click Deployment" tab for WordPress installation with auto-configured FastCGI cache and security hardening.</p>
                     @else
                         <h6>Node.js Application</h6>
                         <p class="small">This Node.js app runs on port {{ $website->port }} and is managed by PM2 for automatic restarts and monitoring.</p>
@@ -479,7 +500,19 @@
                 </div>
             </div>
         </div>
+            </div>
+        </div>
+        <!-- End Overview Tab -->
+
+        @if($website->project_type === 'php')
+        <!-- WordPress 1-Click Deployment Tab -->
+        <div class="tab-pane fade" id="wordpress" role="tabpanel" aria-labelledby="wordpress-tab">
+            @include('websites.partials.wordpress-installer', ['website' => $website])
+        </div>
+        <!-- End WordPress Tab -->
+        @endif
     </div>
+    <!-- End Tab Content -->
 
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1">

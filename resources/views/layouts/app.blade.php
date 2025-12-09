@@ -64,6 +64,9 @@
                 <div class="nav-section-title">
                     Server Tools
                 </div>
+                <a class="nav-link {{ request()->routeIs('services.*') ? 'active' : '' }}" href="{{ route('services.index') }}">
+                    <i class="bi bi-gear-fill me-2"></i> Services
+                </a>
                 <a class="nav-link {{ request()->routeIs('firewall.*') ? 'active' : '' }}" href="{{ route('firewall.index') }}">
                     <i class="bi bi-shield-check me-2"></i> Firewall
                 </a>
