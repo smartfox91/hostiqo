@@ -2,7 +2,7 @@
 
 @section('title', 'Service Manager')
 @section('page-title', 'Services Management')
-@section('page-description', 'Manage system services on ' . gethostname())
+@section('page-description', 'Manage system services')
 
 @section('page-actions')
     <button class="btn btn-outline-primary" onclick="location.reload()">
