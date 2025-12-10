@@ -439,9 +439,10 @@ HTML;
                     $mkdirResult = Process::run("sudo mkdir -p {$documentRoot}");
                     
                     if ($mkdirResult->successful()) {
-                        // Set ownership to www-data
-                        Process::run("sudo chown -R www-data:www-data {$documentRoot}");
-                        Process::run("sudo chmod -R 755 {$documentRoot}");
+                        // Set ownership to www-data for root path (parent directory)
+                        $rootPath = rtrim($website->root_path, '/');
+                        Process::run("sudo chown -R www-data:www-data {$rootPath}");
+                        Process::run("sudo chmod -R 755 {$rootPath}");
 
                         // Create sample index file for testing
                         $indexFile = $documentRoot . '/index.html';
