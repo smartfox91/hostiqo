@@ -88,6 +88,7 @@ class NginxService
         }
         
         $sslConfig = $website->ssl_enabled ? $this->getSslConfig($website->domain) : '';
+        $wwwRedirectConfig = $this->getWwwRedirectConfig($website);
         $securityHeaders = $this->getSecurityHeaders();
         
         // Use custom PHP-FPM pool socket if available
@@ -110,9 +111,10 @@ class NginxService
 server {
     listen 80;
     listen [::]:80;
-    server_name {$website->domain};
+    server_name {$website->domain} www.{$website->domain};
 
 {$sslConfig}
+{$wwwRedirectConfig}
 
     root {$documentRoot};
     index index.php index.html index.htm;
@@ -205,6 +207,7 @@ NGINX;
     {
         $port = $website->port ?? 3000;
         $sslConfig = $website->ssl_enabled ? $this->getSslConfig($website->domain) : '';
+        $wwwRedirectConfig = $this->getWwwRedirectConfig($website);
         $securityHeaders = $this->getSecurityHeaders();
         
         // Environment-aware log paths
@@ -214,9 +217,10 @@ NGINX;
 server {
     listen 80;
     listen [::]:80;
-    server_name {$website->domain};
+    server_name {$website->domain} www.{$website->domain};
 
 {$sslConfig}
+{$wwwRedirectConfig}
 
     # Logging
     access_log {$logDir}/{$website->domain}-access.log;
@@ -354,6 +358,37 @@ NGINX;
         return 301 https://\$host\$request_uri;
     }
 SSL;
+    }
+
+    /**
+     * Get WWW redirect configuration based on preference
+     */
+    protected function getWwwRedirectConfig(Website $website): string
+    {
+        $redirect = $website->www_redirect ?? 'none';
+        
+        if ($redirect === 'to_non_www') {
+            // Redirect www to non-www
+            return <<<REDIRECT
+
+    # WWW to non-WWW redirect
+    if (\$host = 'www.{$website->domain}') {
+        return 301 \$scheme://{$website->domain}\$request_uri;
+    }
+REDIRECT;
+        } elseif ($redirect === 'to_www') {
+            // Redirect non-www to www
+            return <<<REDIRECT
+
+    # Non-WWW to WWW redirect
+    if (\$host = '{$website->domain}') {
+        return 301 \$scheme://www.{$website->domain}\$request_uri;
+    }
+REDIRECT;
+        }
+        
+        // No redirect (both work)
+        return '';
     }
 
     /**
@@ -869,7 +904,7 @@ FCACHE;
 server {
     listen 80;
     listen [::]:80;
-    server_name {$domain};
+    server_name {$domain} www.{$domain};
     
     root {$rootPath};
     index index.php index.html index.htm;

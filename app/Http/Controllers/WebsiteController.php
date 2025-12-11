@@ -59,6 +59,7 @@ class WebsiteController extends Controller
             'php_settings' => ['nullable', 'array'],
             'port' => ['nullable', 'integer', 'min:1', 'max:65535'],
             'ssl_enabled' => ['boolean'],
+            'www_redirect' => ['nullable', 'in:none,to_www,to_non_www'],
             'is_active' => ['boolean'],
         ]);
 
@@ -74,6 +75,7 @@ class WebsiteController extends Controller
 
         // Set SSL to false by default
         $validated['ssl_enabled'] = $request->boolean('ssl_enabled', false);
+        $validated['www_redirect'] = $request->input('www_redirect', 'none');
         $validated['is_active'] = $request->boolean('is_active', true);
 
         $website = Website::create($validated);
@@ -128,6 +130,7 @@ class WebsiteController extends Controller
             'php_settings' => ['nullable', 'array'],
             'port' => ['nullable', 'integer', 'min:1', 'max:65535'],
             'ssl_enabled' => ['boolean'],
+            'www_redirect' => ['nullable', 'in:none,to_www,to_non_www'],
             'is_active' => ['boolean'],
         ]);
 
@@ -162,6 +165,7 @@ class WebsiteController extends Controller
         $sslChanged = $request->boolean('ssl_enabled', false) !== $website->ssl_enabled;
         
         $validated['ssl_enabled'] = $request->boolean('ssl_enabled', $website->ssl_enabled);
+        $validated['www_redirect'] = $request->input('www_redirect', $website->www_redirect ?? 'none');
         $validated['is_active'] = $request->boolean('is_active', $website->is_active);
 
         $website->update($validated);

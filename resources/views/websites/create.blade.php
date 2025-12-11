@@ -234,6 +234,60 @@
                             <div class="form-text">Automatically request Let's Encrypt SSL certificate for HTTPS. You can enable this later from the website detail page.</div>
                         </div>
 
+                        <!-- WWW Redirect -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Redirect Preference
+                            </label>
+                            <div class="form-text mb-2">Choose how to handle www subdomain traffic</div>
+                            
+                            <div class="form-check">
+                                <input 
+                                    class="form-check-input @error('www_redirect') is-invalid @enderror" 
+                                    type="radio" 
+                                    name="www_redirect" 
+                                    id="www_redirect_none" 
+                                    value="none"
+                                    {{ old('www_redirect', 'none') === 'none' ? 'checked' : '' }}
+                                >
+                                <label class="form-check-label" for="www_redirect_none">
+                                    No redirect (both www &amp; non-www work)
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input 
+                                    class="form-check-input @error('www_redirect') is-invalid @enderror" 
+                                    type="radio" 
+                                    name="www_redirect" 
+                                    id="www_redirect_to_non_www" 
+                                    value="to_non_www"
+                                    {{ old('www_redirect') === 'to_non_www' ? 'checked' : '' }}
+                                >
+                                <label class="form-check-label" for="www_redirect_to_non_www">
+                                    Redirect www to non-www (www.example.com → example.com)
+                                </label>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input 
+                                    class="form-check-input @error('www_redirect') is-invalid @enderror" 
+                                    type="radio" 
+                                    name="www_redirect" 
+                                    id="www_redirect_to_www" 
+                                    value="to_www"
+                                    {{ old('www_redirect') === 'to_www' ? 'checked' : '' }}
+                                >
+                                <label class="form-check-label" for="www_redirect_to_www">
+                                    Redirect non-www to www (example.com → www.example.com)
+                                </label>
+                            </div>
+                            
+                            @error('www_redirect')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <!-- Active Status -->
                         <div class="mb-3">
                             <div class="form-check form-switch">

@@ -19,6 +19,7 @@ class Website extends Model
         'php_pool_name',
         'port',
         'ssl_enabled',
+        'www_redirect',
         'is_active',
         'nginx_status',
         'ssl_status',
