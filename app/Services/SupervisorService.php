@@ -54,7 +54,7 @@ class SupervisorService
         try {
             $config = $this->generateConfig($program);
             $configPath = $program->getConfigFilePath();
-            $tempFile = '/tmp/' . $program->getConfigFileName();
+            $tempFile = '/tmp/webhook-manager-' . $program->getConfigFileName();
             
             // Write to temp file
             File::put($tempFile, $config);
