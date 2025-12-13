@@ -91,14 +91,26 @@ class LogViewerController extends Controller
         }
 
         if ($logFile) {
-            // Determine if we need sudo (for system logs outside storage/)
-            $needsSudo = !str_starts_with($logFile, storage_path());
-            $command = $needsSudo 
-                ? "sudo tail -n 1000 {$logFile}" 
-                : "tail -n 1000 {$logFile}";
+            // Only skip sudo for webhook-manager's own storage logs
+            // All other logs (system, website) need sudo or direct read attempt
+            $isOwnStorage = str_starts_with($logFile, storage_path());
             
-            // Read last 1000 lines using Process (bypasses open_basedir restrictions)
-            $result = Process::run($command);
+            if ($isOwnStorage) {
+                // Webhook-manager's own logs - no sudo needed
+                $command = "tail -n 1000 " . escapeshellarg($logFile);
+                $result = Process::run($command);
+            } else {
+                // External logs - try without sudo first (www-data might have access)
+                // then fallback to sudo if needed
+                $command = "tail -n 1000 " . escapeshellarg($logFile);
+                $result = Process::run($command);
+                
+                // If direct read failed, try with sudo
+                if ($result->failed()) {
+                    $command = "sudo tail -n 1000 " . escapeshellarg($logFile);
+                    $result = Process::run($command);
+                }
+            }
             
             if ($result->successful()) {
                 $content = $result->output();
