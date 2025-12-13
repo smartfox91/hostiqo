@@ -114,7 +114,7 @@
                             SSL Status
                         </div>
                         <div class="col-md-8">
-                            <span class="badge badge-pastel-{{ $website->ssl_status ? 'green' : 'black' }}">
+                            <span class="badge badge-pastel-{{ $website->ssl_status == 'active' ? 'green' : 'black' }}">
                                 {{ ucfirst($website->ssl_status) }}
                             </span>
                         </div>
