@@ -78,12 +78,12 @@ class LogViewerController extends Controller
                 break;
             case 'website-laravel':
                 if ($website && $website->project_type === 'php') {
-                    $laravelLogPath = rtrim($website->working_directory ?: $website->root_path, '/') . '/storage/logs/laravel.log';
-                    if (file_exists($laravelLogPath)) {
-                        $logFile = $laravelLogPath;
-                    } else {
-                        session()->flash('warning', "Laravel log not found at: {$laravelLogPath}");
-                    }
+                    // Use root_path as base - working_directory is relative (e.g., '/' or '/public')
+                    $basePath = rtrim($website->root_path, '/');
+                    $laravelLogPath = $basePath . '/storage/logs/laravel.log';
+                    // Set logFile directly - let the tail command handle file existence check
+                    // since file_exists() may fail due to open_basedir restrictions
+                    $logFile = $laravelLogPath;
                 } elseif ($website && $website->project_type !== 'php') {
                     session()->flash('warning', 'Laravel logs are only available for PHP websites.');
                 }
