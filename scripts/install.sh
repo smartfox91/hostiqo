@@ -29,7 +29,7 @@ print_header() {
 
 # Read input from terminal (works with curl pipe)
 read_input() {
-    read "$@" </dev/tty
+    read "$@" </dev/tty || true
 }
 
 # Check if running as root
