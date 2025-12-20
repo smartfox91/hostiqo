@@ -64,11 +64,13 @@ abstract class AbstractServiceManagerService implements ServiceManagerInterface
         $output = $result->output();
         
         // Parse status from output
-        $isRunning = str_contains($output, 'Active: active (running)');
+        // Some services like UFW use 'exited' instead of 'running'
+        $isRunning = str_contains($output, 'Active: active (running)') || 
+                     str_contains($output, 'Active: active (exited)');
         $isEnabled = str_contains($output, 'enabled;') || str_contains($output, '; enabled');
         
         // Determine status string
-        if (str_contains($output, 'Active: active (running)')) {
+        if (str_contains($output, 'Active: active (running)') || str_contains($output, 'Active: active (exited)')) {
             $status = 'running';
         } elseif (str_contains($output, 'Active: inactive (dead)')) {
             $status = 'stopped';
