@@ -272,10 +272,11 @@ install_prerequisites_rhel() {
     $PKG_MANAGER install -y epel-release > /dev/null 2>&1
     print_success "EPEL repository installed"
 
-    # Install basic dependencies
+    # Install basic dependencies (openssl MUST be first for secure_database)
     print_info "Installing basic dependencies..."
+    $PKG_MANAGER install -y openssl > /dev/null 2>&1 || true
     $PKG_MANAGER install -y ca-certificates curl wget git net-tools unzip \
-        gcc gcc-c++ make gnupg2 > /dev/null 2>&1
+        gcc gcc-c++ make gnupg2 openssl-devel > /dev/null 2>&1
     print_success "Basic dependencies installed"
 
     # Install Nginx
@@ -409,11 +410,13 @@ install_prerequisites_rhel() {
 # Common Tools Installation
 #########################################################
 install_common_tools() {
-    # Install Composer
+    # Install Composer (install to /usr/bin for better sudo compatibility)
     print_info "Installing Composer..."
     curl -sS https://getcomposer.org/installer | php > /dev/null 2>&1
     mv composer.phar /usr/local/bin/composer
     chmod +x /usr/local/bin/composer
+    # Create symlink in /usr/bin for sudo access
+    ln -sf /usr/local/bin/composer /usr/bin/composer 2>/dev/null || true
     print_success "Composer installed"
 
     # Install PM2
@@ -523,15 +526,29 @@ DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';
 FLUSH PRIVILEGES;
 _EOF_
     else
-        # MariaDB on RHEL-based systems
+        # MariaDB on RHEL-based systems uses unix_socket by default
+        # We need to set password and switch to mysql_native_password
         mysql --user=root <<_EOF_ > /dev/null 2>&1 || true
-SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${MYSQL_ROOT_PASS}');
+-- Update root authentication to use password
+ALTER USER 'root'@'localhost' IDENTIFIED VIA mysql_native_password USING PASSWORD('${MYSQL_ROOT_PASS}');
 DELETE FROM mysql.user WHERE User='';
 DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';
 FLUSH PRIVILEGES;
 _EOF_
+        
+        # If ALTER USER fails, try alternative method for older MariaDB
+        if ! mysql --user=root -p"${MYSQL_ROOT_PASS}" -e "SELECT 1" > /dev/null 2>&1; then
+            mysql --user=root <<_EOF_ > /dev/null 2>&1 || true
+UPDATE mysql.user SET Password=PASSWORD('${MYSQL_ROOT_PASS}'), plugin='mysql_native_password' WHERE User='root' AND Host='localhost';
+DELETE FROM mysql.user WHERE User='';
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+DROP DATABASE IF EXISTS test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';
+FLUSH PRIVILEGES;
+_EOF_
+        fi
     fi
     
     echo "$MYSQL_ROOT_PASS" > /root/.mysql_root_password
@@ -838,11 +855,11 @@ setup_application() {
     SETUP_DB=${SETUP_DB:-y}
     
     if [[ "$SETUP_DB" =~ ^[Yy]$ ]]; then
-        read_input -p "Database name (default: hostiqo): " DB_NAME
-        DB_NAME=${DB_NAME:-hostiqo}
+        read_input -p "Database name (default: hostiqo_db): " DB_NAME
+        DB_NAME=${DB_NAME:-hostiqo_db}
         
-        read_input -p "Database user (default: webhook_user): " DB_USER
-        DB_USER=${DB_USER:-webhook_user}
+        read_input -p "Database user (default: hostiqo_user): " DB_USER
+        DB_USER=${DB_USER:-hostiqo_user}
         
         read_input -sp "Database password: " DB_PASS
         echo ""
