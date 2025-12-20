@@ -185,17 +185,15 @@ class ServiceManagerService
 
             $serviceName = $this->supportedServices[$service]['service'];
 
-            // Check if service is active
-            $isActiveResult = Process::run("systemctl is-active {$serviceName} 2>&1");
-            $isActive = trim($isActiveResult->output()) === 'active';
-            
-            // Check if service is enabled
-            $isEnabledResult = Process::run("systemctl is-enabled {$serviceName} 2>&1");
-            $isEnabled = trim($isEnabledResult->output()) === 'enabled';
-            
-            // Get detailed status
-            $statusResult = Process::run("systemctl status {$serviceName} 2>&1 | head -20");
+            // Get detailed status first
+            $statusResult = Process::run("systemctl status {$serviceName} 2>&1");
             $statusOutput = $statusResult->output();
+            
+            // Parse active state from status output (more reliable)
+            $isActive = str_contains($statusOutput, 'Active: active');
+            
+            // Parse enabled state from status output
+            $isEnabled = preg_match('/;\s*enabled[;)]/', $statusOutput) === 1;
 
             // Parse PID and uptime
             $pid = null;
