@@ -19,7 +19,14 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WebhookHandlerController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\WordPressDeploymentController;
+use App\Http\Controllers\HealthCheckController;
 use Illuminate\Support\Facades\Route;
+
+// Public Health Check Endpoints (Rate Limited)
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('ping', [HealthCheckController::class, 'ping'])->name('ping');
+    Route::get('health', [HealthCheckController::class, 'health'])->name('health');
+});
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
