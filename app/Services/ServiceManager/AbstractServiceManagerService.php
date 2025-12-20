@@ -67,7 +67,10 @@ abstract class AbstractServiceManagerService implements ServiceManagerInterface
         // Some services like UFW use 'exited' instead of 'running'
         $isRunning = str_contains($output, 'Active: active (running)') || 
                      str_contains($output, 'Active: active (exited)');
-        $isEnabled = str_contains($output, 'enabled;') || str_contains($output, '; enabled');
+        
+        // Check enabled status - various formats in systemctl output
+        // e.g., "Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)"
+        $isEnabled = (bool) preg_match('/;\s*enabled[;)]/', $output);
         
         // Determine status string
         if (str_contains($output, 'Active: active (running)') || str_contains($output, 'Active: active (exited)')) {
