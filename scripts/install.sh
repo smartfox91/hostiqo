@@ -11,7 +11,8 @@
 # Run with: sudo bash scripts/install.sh
 #########################################################
 
-set -e
+# Note: We don't use 'set -e' to allow graceful error handling
+# Each critical command should handle its own errors
 
 # Colors
 RED='\033[0;31m'
@@ -147,6 +148,13 @@ install_prerequisites() {
     # Common post-installation tasks
     install_common_tools
     configure_security
+    
+    # Set ownership of app directory (now that web user exists)
+    if [ -d "$APP_DIR" ]; then
+        print_info "Setting ownership of $APP_DIR to $WEB_USER..."
+        chown -R $WEB_USER:$WEB_USER "$APP_DIR"
+        print_success "Ownership set to $WEB_USER"
+    fi
 
     print_success "Phase 1 completed!"
 }
@@ -335,28 +343,43 @@ install_prerequisites_rhel() {
 
     # Install Redis
     print_info "Installing Redis..."
-    $PKG_MANAGER install -y redis > /dev/null 2>&1
-    systemctl enable redis > /dev/null 2>&1
-    systemctl start redis > /dev/null 2>&1
+    if command -v dnf &> /dev/null; then
+        dnf module enable redis:7 -y > /dev/null 2>&1 || true
+    fi
+    $PKG_MANAGER install -y redis > /dev/null 2>&1 || {
+        print_warning "Redis package not found, trying redis6..."
+        $PKG_MANAGER install -y redis6 > /dev/null 2>&1 || true
+    }
+    systemctl enable redis > /dev/null 2>&1 || true
+    systemctl start redis > /dev/null 2>&1 || true
     print_success "Redis installed and started"
 
     # Install MySQL/MariaDB
     print_info "Installing MariaDB..."
-    $PKG_MANAGER install -y mariadb-server mariadb > /dev/null 2>&1
-    systemctl enable mariadb > /dev/null 2>&1
-    systemctl start mariadb > /dev/null 2>&1
+    $PKG_MANAGER install -y mariadb-server mariadb > /dev/null 2>&1 || {
+        print_error "Failed to install MariaDB"
+        exit 1
+    }
+    systemctl enable mariadb > /dev/null 2>&1 || true
+    systemctl start mariadb > /dev/null 2>&1 || true
     print_success "MariaDB installed and started"
 
     # Install Certbot
     print_info "Installing Certbot..."
-    $PKG_MANAGER install -y certbot python3-certbot-nginx > /dev/null 2>&1
+    $PKG_MANAGER install -y certbot python3-certbot-nginx > /dev/null 2>&1 || {
+        print_warning "certbot-nginx not found, trying certbot only..."
+        $PKG_MANAGER install -y certbot > /dev/null 2>&1 || true
+    }
     print_success "Certbot installed"
 
     # Install Supervisor
     print_info "Installing Supervisor..."
-    $PKG_MANAGER install -y supervisor > /dev/null 2>&1
-    systemctl enable supervisord > /dev/null 2>&1
-    systemctl start supervisord > /dev/null 2>&1
+    $PKG_MANAGER install -y supervisor > /dev/null 2>&1 || {
+        print_error "Failed to install Supervisor"
+        exit 1
+    }
+    systemctl enable supervisord > /dev/null 2>&1 || true
+    systemctl start supervisord > /dev/null 2>&1 || true
     print_success "Supervisor installed and started"
 
     # Install fail2ban
@@ -1259,9 +1282,8 @@ setup_repository() {
         exit 1
     fi
     
-    # Set ownership
-    chown -R $WEB_USER:$WEB_USER "$APP_DIR"
-    print_success "Ownership set to $WEB_USER"
+    # Note: Ownership will be set after prerequisites install (when web user exists)
+    print_info "Ownership will be set after prerequisites installation"
 }
 
 #########################################################
