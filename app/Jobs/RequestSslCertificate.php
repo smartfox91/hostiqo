@@ -38,6 +38,17 @@ class RequestSslCertificate implements ShouldQueue
         ]);
 
         try {
+            // Check if webroot directory exists before requesting SSL
+            $fullPath = rtrim($this->website->root_path, '/') . '/' . ltrim($this->website->working_directory ?? '/', '/');
+            
+            if (!file_exists($this->website->root_path)) {
+                throw new \Exception('Website root directory does not exist. Please deploy your application first using webhook or file manager.');
+            }
+            
+            if (!file_exists($fullPath)) {
+                throw new \Exception('Working directory does not exist. Please deploy your application first using webhook or file manager.');
+            }
+
             // Update status to pending
             $this->website->update([
                 'ssl_status' => 'pending'

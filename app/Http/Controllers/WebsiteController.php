@@ -87,6 +87,25 @@ class WebsiteController extends Controller
         $validated['www_redirect'] = $request->input('www_redirect', 'none');
         $validated['is_active'] = $request->boolean('is_active', true);
 
+        // Check if SSL is enabled and directories don't exist yet
+        if ($validated['ssl_enabled']) {
+            $fullPath = rtrim($validated['root_path'], '/') . '/' . ltrim($validated['working_directory'] ?? '/', '/');
+            
+            if (!file_exists($validated['root_path']) || !file_exists($fullPath)) {
+                // Disable SSL for now, user needs to deploy first
+                $validated['ssl_enabled'] = false;
+                
+                $website = Website::create($validated);
+                
+                // Dispatch job to deploy Nginx configuration
+                dispatch(new DeployNginxConfig($website));
+                
+                return redirect()
+                    ->route('websites.index', ['type' => $website->project_type])
+                    ->with('warning', 'Website created successfully! SSL was disabled because application directories do not exist yet. Please deploy your application first using webhook or file manager, then enable SSL.');
+            }
+        }
+
         $website = Website::create($validated);
 
         // Dispatch job to deploy Nginx configuration
@@ -250,6 +269,23 @@ class WebsiteController extends Controller
     public function toggleSsl(Website $website)
     {
         $enableSsl = !$website->ssl_enabled;
+        
+        if ($enableSsl) {
+            // Check if webroot directory exists before enabling SSL
+            $fullPath = rtrim($website->root_path, '/') . '/' . ltrim($website->working_directory ?? '/', '/');
+            
+            if (!file_exists($website->root_path)) {
+                return redirect()
+                    ->route('websites.index', ['type' => $website->project_type])
+                    ->with('error', 'Cannot enable SSL: Website root directory does not exist. Please deploy your application first using webhook or file manager.');
+            }
+            
+            if (!file_exists($fullPath)) {
+                return redirect()
+                    ->route('websites.index', ['type' => $website->project_type])
+                    ->with('error', 'Cannot enable SSL: Working directory does not exist. Please deploy your application first using webhook or file manager.');
+            }
+        }
         
         $website->update([
             'ssl_enabled' => $enableSsl
