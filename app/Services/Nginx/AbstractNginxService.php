@@ -82,6 +82,12 @@ server {
 
 {$securityHeaders}
 
+    # Allow Let's Encrypt ACME challenge
+    location ~ /.well-known/acme-challenge {
+        allow all;
+        default_type "text/plain";
+    }
+
     # Main location
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
@@ -96,8 +102,8 @@ server {
         fastcgi_read_timeout 300;
     }
 
-    # Security: Deny access to hidden files
-    location ~ /\. {
+    # Security: Deny access to hidden files (except .well-known)
+    location ~ /\.(?!well-known) {
         deny all;
         access_log off;
         log_not_found off;
@@ -154,12 +160,18 @@ server {
 
 {$securityHeaders}
 
+    # Allow Let's Encrypt ACME challenge
+    location ~ /.well-known/acme-challenge {
+        allow all;
+        default_type "text/plain";
+    }
+
     location / {
         try_files \$uri \$uri/ =404;
     }
 
-    # Security: Deny access to hidden files
-    location ~ /\. {
+    # Security: Deny access to hidden files (except .well-known)
+    location ~ /\.(?!well-known) {
         deny all;
     }
 
