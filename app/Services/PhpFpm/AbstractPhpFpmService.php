@@ -90,6 +90,10 @@ abstract class AbstractPhpFpmService implements PhpFpmInterface
             throw new \InvalidArgumentException('Website is not a PHP project');
         }
 
+        if (empty($website->php_version)) {
+            throw new \InvalidArgumentException('PHP version is required for PHP projects');
+        }
+
         $poolName = $website->php_pool_name ?? $this->generatePoolName($website);
         $settings = array_merge(
             $this->getDefaultSettings(),

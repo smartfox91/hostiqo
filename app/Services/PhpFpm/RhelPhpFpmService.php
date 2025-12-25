@@ -96,6 +96,10 @@ class RhelPhpFpmService extends AbstractPhpFpmService
                 ];
             }
 
+            if (empty($website->php_version)) {
+                throw new \InvalidArgumentException('PHP version is required for PHP projects');
+            }
+
             $poolName = $website->php_pool_name ?? $this->generatePoolName($website);
             $config = $this->generatePoolConfig($website);
             
@@ -160,6 +164,10 @@ class RhelPhpFpmService extends AbstractPhpFpmService
                     'success' => true,
                     'message' => 'No PHP-FPM pool to delete'
                 ];
+            }
+
+            if (empty($website->php_version)) {
+                throw new \InvalidArgumentException('PHP version is required for PHP projects');
             }
 
             $poolDir = $this->getPoolDirectoryPath($website->php_version);

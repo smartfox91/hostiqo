@@ -143,14 +143,15 @@
                         @if($website->project_type === 'php')
                             <div class="mb-3">
                                 <label for="php_version" class="form-label">
-                                    PHP Version
+                                    PHP Version <span class="text-danger">*</span>
                                 </label>
                                 <select 
                                     class="form-select @error('php_version') is-invalid @enderror" 
                                     id="php_version" 
                                     name="php_version"
+                                    required
                                 >
-                                    <option value="">System Default</option>
+                                    <option value="">-- Select PHP Version --</option>
                                     @foreach($phpVersions as $version)
                                         <option value="{{ $version }}" {{ old('php_version', $website->php_version) === $version ? 'selected' : '' }}>
                                             PHP {{ $version }}

@@ -63,7 +63,7 @@ class WebsiteController extends Controller
             'root_path' => ['nullable', 'string', 'max:500'],
             'working_directory' => ['nullable', 'string', 'max:500'],
             'project_type' => ['required', 'in:php,node'],
-            'php_version' => ['nullable', 'string', 'max:10'],
+            'php_version' => ['required_if:project_type,php', 'nullable', 'string', 'max:10'],
             'node_version' => ['nullable', 'string', 'max:10'],
             'php_settings' => ['nullable', 'array'],
             'port' => ['nullable', 'integer', 'min:1', 'max:65535'],
@@ -144,7 +144,7 @@ class WebsiteController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'working_directory' => ['nullable', 'string', 'max:500'],
             'project_type' => ['required', 'in:php,node'],
-            'php_version' => ['nullable', 'string', 'max:10'],
+            'php_version' => ['required_if:project_type,php', 'nullable', 'string', 'max:10'],
             'node_version' => ['nullable', 'string', 'max:10'],
             'php_settings' => ['nullable', 'array'],
             'port' => ['nullable', 'integer', 'min:1', 'max:65535'],
@@ -229,7 +229,9 @@ class WebsiteController extends Controller
         if ($website->project_type === 'php') {
             $phpFpmService = app(\App\Contracts\PhpFpmInterface::class);
             $phpFpmService->deletePoolConfig($website);
-            $phpFpmService->restart($website->php_version);
+            if ($website->php_version) {
+                $phpFpmService->restart($website->php_version);
+            }
         }
         
         $website->delete();
